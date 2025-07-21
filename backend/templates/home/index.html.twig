@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Home{% endblock %}
+
+{% block body %}
+    <section class="space-y-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">My Booking Groups</h1>
+            <p class="text-sm text-gray-600 mt-1">A list of all the booking groups you have created.</p>
+        </div>
+
+        {% if booking_groups is not empty %}
+            <div class="overflow-hidden rounded-lg shadow ring-1 ring-gray-200 bg-white">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Name</th>
+                            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Created At</th>
+                            <th scope="col" class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 bg-white">
+                        {% for group in booking_groups %}
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">{{ group.name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ group.createdAt|date('F j, Y') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                                    <a href="{{ path('app_booking_group_show', {'id': group.id}) }}" class="text-indigo-600 hover:text-indigo-800 font-semibold transition">Edit<span class="sr-only">, {{ group.name }}</span></a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-12 px-6 bg-white rounded-lg shadow">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2z" />
+                </svg>
+                <h3 class="mt-4 text-lg font-semibold text-gray-900">No booking groups</h3>
+                <p class="mt-2 text-sm text-gray-500">Get started by creating a new booking group.</p>
+                <div class="mt-6">
+                    <a href="{{ path('app_booking_group_create') }}"
+                       class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        <svg class="-ml-1 mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+                        </svg>
+                        New Group
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </section>
+{% endblock %}

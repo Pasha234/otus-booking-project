@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Register{% endblock %}
+
+{% block body %}
+    <div class="bg-gray-50 p-6 rounded-lg shadow-inner mb-6">
+        <h1 class="text-3xl font-bold text-blue-700 mb-6 text-center">Register</h1>
+
+        {% if errors is defined and errors %}
+            <div class="mb-4">
+                {% for error in errors %}
+                    <p class="text-red-500 text-sm italic mb-1">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post" class="max-w-md mx-auto">
+            <div class="mb-4">
+                <label for="email" class="block text-gray-700 text-sm font-bold mb-2">Email:</label>
+                <input type="email" id="email" name="email" value="{{ app.request.request.get('email') }}" required
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                {% if form_errors.email is defined %}<p class="text-red-500 text-xs italic mt-1">{{ form_errors.email }}</p>{% endif %}
+            </div>
+            <div class="mb-4">
+                <label for="full_name" class="block text-gray-700 text-sm font-bold mb-2">Full Name:</label>
+                <input type="text" id="full_name" name="full_name" value="{{ app.request.request.get('full_name') }}" required
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                {% if form_errors.full_name is defined %}<p class="text-red-500 text-xs italic mt-1">{{ form_errors.full_name }}</p>{% endif %}
+            </div>
+            <div class="mb-4">
+                <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Password:</label>
+                <input type="password" id="password" name="password" required
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                {% if form_errors.password is defined %}<p class="text-red-500 text-xs italic mt-1">{{ form_errors.password }}</p>{% endif %}
+            </div>
+            <div class="mb-6">
+                <label for="password_confirmation" class="block text-gray-700 text-sm font-bold mb-2">Confirm Password:</label>
+                <input type="password" id="password_confirmation" name="password_confirmation" required
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                {% if form_errors.password_confirmation is defined %}<p class="text-red-500 text-xs italic mt-1">{{ form_errors.password_confirmation }}</p>{% endif %}
+            </div>
+            <div class="flex items-center justify-between">
+                <button type="submit"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Register
+                </button>
+            </div>
+        </form>
+
+        <p class="mt-6 text-center text-gray-600">Already have an account? <a href="{{ path('app_login') }}" class="text-blue-600 hover:text-blue-800 hover:underline">Login here</a></p>
+    </div>
+{% endblock %}

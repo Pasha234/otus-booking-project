@@ -1,0 +1,66 @@
+services:
+    nginx:
+        build:
+            context: ./docker/nginx
+            dockerfile: Dockerfile
+        image: balance/nginx
+        ports:
+            - "80:80"
+        volumes:
+            - ./backend:/data/mysite.local
+        networks:
+            - app-network
+    php:
+        build:
+            context: ./docker/fpm
+            dockerfile: Dockerfile
+        working_dir: /data/mysite.local
+        image: balance/php
+        env_file: backend/.env
+        volumes:
+            - ./backend:/data/mysite.local
+        networks:
+            - app-network
+        depends_on:
+            database:
+                condition: service_healthy
+
+    database:
+        image: postgres:${POSTGRES_VERSION:-16}-alpine
+        environment:
+            POSTGRES_DB: ${POSTGRES_DB:-app}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
+            POSTGRES_USER: ${POSTGRES_USER:-app}
+        networks:
+            - app-network
+        ports:
+            - "5432:5432"
+        volumes:
+            - database_data:/var/lib/postgresql/data:rw
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-app} -d ${POSTGRES_DB:-app}"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+    
+    frontend:
+        build:
+            context: docker/frontend
+            dockerfile: frontend.dockerfile
+        command: npm run watch
+        working_dir: /var/www/project
+        tty: true
+        volumes:
+            - ./backend:/var/www/project
+        ports:
+            - 5173:5173
+        depends_on:
+            - php
+        env_file: backend/.env
+        networks:
+            - app-network
+networks:
+    app-network:
+
+volumes:
+  database_data:

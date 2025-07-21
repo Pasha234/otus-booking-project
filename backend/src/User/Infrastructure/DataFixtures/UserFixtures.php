@@ -1,0 +1,25 @@
+<?php
+
+namespace App\User\Infrastructure\DataFixtures;
+
+use App\Shared\Infrastructure\Tools\WithFaker;
+use App\User\Domain\Entity\User;
+use Doctrine\Persistence\ObjectManager;
+use Doctrine\Bundle\FixturesBundle\Fixture;
+
+class UserFixtures extends Fixture
+{
+    use WithFaker;
+
+    public function load(ObjectManager $manager): void
+    {
+        $user = new User();
+        $user->setFullName('jwage');
+        $user->setPassword('test');
+        $user->setEmail($this->faker()->email());
+        $manager->persist($user);
+        $manager->flush();
+
+        $this->addReference('test-user', $user);
+    }
+}

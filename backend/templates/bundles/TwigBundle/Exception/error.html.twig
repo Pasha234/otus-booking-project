@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}An Error Occurred: {{ status_text }}{% endblock %}
+
+{% block body %}
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+        <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+            Oops! An Error Occurred
+        </h1>
+        <p class="mt-6 text-base leading-7 text-gray-600">
+            The server returned a "{{ status_code }} {{ status_text }}".
+        </p>
+        <p class="mt-4 text-base leading-7 text-gray-600">
+            Something is broken. Please let us know what you were doing when this error occurred.
+            We will fix it as soon as possible. Sorry for any inconvenience caused.
+        </p>
+        <div class="mt-10 flex items-center justify-center gap-x-6">
+            <a href="{{ path('app_home') }}" class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Go back home</a>
+        </div>
+    </div>
+{% endblock %}

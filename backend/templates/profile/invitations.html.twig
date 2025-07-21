@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Invitations{% endblock %}
+
+{% block body %}
+    <h1 class="text-3xl font-bold text-blue-700 mb-6 text-center">My Invitations</h1>
+
+    {% if invitations is not empty %}
+        <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <ul id="invitation-list" class="divide-y divide-gray-200">
+                {% for invitation in invitations %}
+                    <li id="invitation-{{ invitation.id }}" class="p-4 flex justify-between items-center">
+                        <div>
+                            <p class="text-lg font-semibold">Invitation to join group: {{ invitation.group_name }}</p>
+                            <p class="text-gray-600">Invited by: {{ invitation.invitee_name }}</p>
+                            <p class="text-sm text-gray-500">Expires at: {{ invitation.expires_at|date('Y-m-d H:i') }}</p>
+                        </div>
+                        <div>
+                            <button data-action="accept" data-url="{{ path('app_profile_accept_invitation', {id: invitation.id}) }}" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mr-2">Accept</button>
+                            <button data-action="decline" data-url="{{ path('app_profile_decline_invitation', {id: invitation.id}) }}" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Decline</button>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% else %}
+        <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <div class="bg-gray-50 p-6 rounded-lg shadow-inner text-center">
+                <p class="text-lg text-gray-700">You have no pending invitations.</p>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const invitationList = document.getElementById('invitation-list');
+
+            if (invitationList) {
+                invitationList.addEventListener('click', function (event) {
+                    const button = event.target.closest('button[data-action]');
+                    if (!button) {
+                        return;
+                    }
+
+                    event.preventDefault();
+
+                    const url = button.dataset.url;
+                    const listItem = button.closest('li');
+
+                    fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(err => { throw new Error(err.error || 'An error occurred.') });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        listItem.style.transition = 'opacity 0.5s ease';
+                        listItem.style.opacity = '0';
+                        setTimeout(() => {
+                            listItem.remove();
+                            if (invitationList.children.length === 0) {
+                                invitationList.parentElement.innerHTML = `<div class="bg-gray-50 p-6 rounded-lg shadow-inner text-center"><p class="text-lg text-gray-700">You have no pending invitations.</p></div>`;
+                            }
+                        }, 500);
+                    })
+                    .catch(error => {
+                        alert(error.message);
+                    });
+                });
+            }
+        });
+    </script>
+{% endblock %}

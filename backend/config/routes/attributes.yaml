@@ -1,0 +1,7 @@
+user_controllers:
+  resource: ../../src/User/Infrastructure/Controllers/
+  type: attribute
+
+booking_controllers:
+  resource: ../../src/Booking/Infrastructure/Controllers/
+  type: attribute

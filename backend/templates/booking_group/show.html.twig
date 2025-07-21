@@ -1,0 +1,102 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Booking Group: {{ booking_group.name }}{% endblock %}
+
+{% block body %}
+    <div class="container mx-auto py-8">
+        <h1 class="text-3xl font-bold text-blue-700 mb-6">{{ booking_group.name }}</h1>
+
+        <p class="mb-4">{{ booking_group.description }}</p>
+
+        <div class="grid grid-cols-3 gap-4">
+            <div class="col-span-2">
+                <h2 class="text-2xl font-semibold mb-4">Bookings</h2>
+                <!-- Booking list will go here -->
+                <p>List of bookings will be implemented here.</p>
+            </div>
+
+            <div class="col-span-1">
+                <div class="bg-gray-100 p-4 rounded-lg">
+                    {% set members = booking_group.members %}
+                    <h3 class="text-xl font-semibold mb-2">Members ({{ members|length }})</h3>
+                    <ul class="list-none pl-0">
+                        {% for participant in members %}
+                            <li class="mb-1 flex justify-between items-center">
+                                <span>{{ participant.name }}</span>
+                                {% if participant.user_id == booking_group.owner.id %}
+                                    <span class="text-xs bg-blue-200 text-blue-800 font-semibold px-2 py-1 rounded-full">Owner</span>
+                                {% endif %}
+                            </li>
+                        {% else %}
+                            <li>This group has no members.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                {% if app.user and app.user.id == booking_group.owner.id %}
+                    <div class="bg-gray-100 p-4 rounded-lg mt-4"
+                         data-controller="invite-user"
+                         data-invite-user-group-id-value="{{ booking_group.id }}">
+                        <h3 class="text-xl font-semibold mb-2">Admin Menu</h3>
+                        <ul class="list-none pl-0">
+                            <li class="mb-2">
+                                <button type="button" data-action="invite-user#openModal" class="text-blue-500 hover:text-blue-700">
+                                    Invite User
+                                </button>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ path('app_resource_create', {'group_id': booking_group.id}) }}" 
+                                   class="text-blue-500 hover:text-blue-700">
+                                    Create Resource
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ path('app_booking_group_settings', {'id': booking_group.id}) }}" 
+                                   class="text-blue-500 hover:text-blue-700">
+                                    Settings
+                                </a>
+                            </li>
+                        </ul>
+
+                        <!-- Modal -->
+                        <div data-invite-user-target="modal"
+                            class="fixed inset-0 z-40 hidden"
+                            role="dialog" aria-modal="true" aria-labelledby="modal-title">
+                            <div class="fixed inset-0 z-40 bg-gray-500 opacity-75" data-action="click->invite-user#closeModal">
+                            </div>
+                            <div class="flex items-center justify-center w-full h-full">
+                                <div class="bg-white rounded-lg shadow-lg w-full max-w-lg mx-auto p-6 relative z-50">
+                                    <h3 class="text-lg font-medium text-gray-900 mb-4" id="modal-title">
+                                        Invite a user to {{ booking_group.name }}
+                                    </h3>
+
+                                    <div class="mb-4">
+                                        <input type="text"
+                                            data-invite-user-target="searchInput"
+                                            data-action="input->invite-user#searchUsers"
+                                            placeholder="Search by email..."
+                                            class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 px-3 py-2">
+                                        <ul data-invite-user-target="results"
+                                            class="mt-2 border border-gray-300 rounded-md max-h-60 overflow-y-auto">
+                                            <!-- Dynamic results go here -->
+                                        </ul>
+                                    </div>
+
+                                    <div class="flex justify-end">
+                                        <button type="button"
+                                                data-action="invite-user#closeModal"
+                                                class="text-sm px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded">
+                                            Close
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

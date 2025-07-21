@@ -1,0 +1,9 @@
+/* assets/app.css */
+@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    background-color: lightgray;
+}
