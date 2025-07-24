@@ -3,24 +3,20 @@
 namespace App\Booking\Infrastructure\Controllers;
 
 use App\User\Domain\Entity\User;
-use App\Booking\Domain\Entity\Group;
 use App\User\Domain\Exception\UserAlreadyHasInvitationException;
 use App\User\Domain\Exception\UserAlreadyInGroupException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Shared\Infrastructure\Controllers\BaseController;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
-use App\User\Application\Query\SearchUsers\SearchUsersQuery;
 use App\Booking\Infrastructure\Request\InviteUserToGroupRequest;
 use App\Booking\Infrastructure\Request\CreateBookingGroupRequest;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use App\Booking\Application\Query\FindGroupById\FindGroupByIdQuery;
 use App\Shared\Application\Exception\NotFoundInRepositoryException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use App\User\Application\Query\FindUsersByEmail\FindUsersByEmailQuery;
 use App\Booking\Application\Command\InviteUserToGroup\InviteUserToGroupCommand;
 use App\Booking\Application\DTO\FindGroupById\Response as FindGroupByIdResponse;
 use App\Booking\Application\Command\CreateBookingGroup\CreateBookingGroupCommand;

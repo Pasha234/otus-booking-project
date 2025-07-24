@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Unit\User;
+namespace App\Tests\Integration\User\Command;
 
 use Faker\Factory;
 use Faker\Generator;

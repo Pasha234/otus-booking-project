@@ -27,7 +27,10 @@ class SetStatusForInvitationCommandHandler implements CommandHandlerInterface
             throw new NotFoundInRepositoryException('User not found');
         }
 
-        $invitation = $this->invitationReadRepository->getById($command->invitation_id);
+        $invitation = $this->invitationReadRepository->findOneBy([
+            'id' => $command->invitation_id,
+            'invited_email' => $user->getEmail(),
+        ]);
 
         if (!$invitation) {
             throw new NotFoundInRepositoryException('Invitation not found');

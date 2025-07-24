@@ -31,7 +31,7 @@ class ResourceController extends BaseController
         ));
 
         if (!$group || $group->owner->id != $user->getId()) {
-            throw new NotFoundHttpException('Group not found');
+            throw $this->createNotFoundException();
         }
 
         return $this->render('resource/create.html.twig', [

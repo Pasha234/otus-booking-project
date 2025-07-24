@@ -15,4 +15,6 @@ docker-compose run --rm frontend /bin/sh -c "npm i"
 
 docker-compose start
 
-# docker-compose exec php php bin/console doctrine:migrations:migrate --no-interaction
+docker-compose exec php php bin/console doctrine:migrations:migrate --no-interaction
+
+docker-compose run --rm -e DATABASE_URL="postgresql://app:!ChangeMe!@database_test:5432/app?serverVersion=16&charset=utf8" php php bin/console doctrine:migrations:migrate --no-interaction

@@ -68,7 +68,6 @@ abstract class BaseController extends AbstractController
                 'form_errors' => (object) $formErrors,
             ], new Response('', $code));
         } catch (\Exception $e) {
-            dd($e);
             $errors = [];
             $errors[] = 'An unexpected error occurred during form submission.';
 
@@ -97,16 +96,16 @@ abstract class BaseController extends AbstractController
         } catch (HandlerFailedException $e) {
             $errors = [];
             $formErrors = [];
-            $isServerError = false;
+            $code = Response::HTTP_UNPROCESSABLE_ENTITY;
 
             foreach ($e->getWrappedExceptions() as $previous) {
-                $this->handleHandlerException($previous, $formErrors, $errors, '', $isServerError);
+                $this->handleHandlerException($previous, $formErrors, $errors, '', $code);
             }
 
             return $this->json([
                 'error' => implode(', ', $errors),
                 'form_errors' => $formErrors,
-            ], $isServerError ? Response::HTTP_INTERNAL_SERVER_ERROR : Response::HTTP_UNPROCESSABLE_ENTITY);
+            ], $code);
         } catch (\InvalidArgumentException $e) {
             return $this->json(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         } catch (NotFoundHttpException $e) {

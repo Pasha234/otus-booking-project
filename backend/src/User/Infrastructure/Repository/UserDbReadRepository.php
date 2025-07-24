@@ -25,7 +25,7 @@ class UserDbReadRepository extends BaseDbReadRepository implements UserReadRepos
 
         return $qb
             ->where($qb->expr()->orX(
-                'u.full_name LIKE :query',
+                'LOWER(u.full_name) LIKE :query',
                 'u.email LIKE :query'
             ))
             ->andWhere($qb->expr()->notIn('u.id', $exclude_ids))

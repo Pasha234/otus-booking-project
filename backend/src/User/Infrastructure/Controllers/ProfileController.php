@@ -7,7 +7,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Shared\Infrastructure\Controllers\BaseController;
-use App\User\Domain\Exception\UserAlreadyExistsException;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use App\Shared\Application\Exception\NotFoundInRepositoryException;
 use App\Booking\Application\Query\GetUserInvitations\GetUserInvitationsQuery;
@@ -79,7 +78,6 @@ class ProfileController extends BaseController
             $errors[] = $e->getMessage();
             $code = Response::HTTP_NOT_FOUND;
         } else {
-            dd($e);
             $errors[] = 'An unexpected error occurred.';
             $code = Response::HTTP_INTERNAL_SERVER_ERROR;
         }
