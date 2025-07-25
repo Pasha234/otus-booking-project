@@ -1,0 +1,103 @@
+name: Symfony CI (PostgreSQL)
+
+on:
+  push:
+    branches: ["main", "develop"]
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+  pull_request:
+    branches: ["main", "develop"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: ["8.2"]
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_DB: test_db
+          POSTGRES_USER: symfony
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: intl gd zip pdo_pgsql xml mbstring opcache
+          ini-values: memory_limit=-1, display_errors=On
+          tools: composer:v2
+          coverage: none
+
+      - name: Validate Composer files
+        run: composer validate --strict
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php-${{ matrix.php-version }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-${{ matrix.php-version }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist --optimize-autoloader
+
+      # - name: Prepare Symfony environment for tests
+      #   run: |
+      #     # УДАЛЕНО: mkdir -p var/ (больше не нужно для SQLite)
+      #     # Здесь не нужно ничего специального, так как DATABASE_URL будет установлен через env
+      #   env:
+      #     APP_ENV: test
+      #     DATABASE_URL: "pgsql://symfony:password@postgres:5432/test_db"
+
+      - name: Create Test Database (PostgreSQL)
+        run: |
+          # Используем цикл с pg_isready для надежного ожидания готовности PostgreSQL
+          # вместо ненадежного sleep.
+          echo "Waiting for PostgreSQL to be ready..."
+          until pg_isready -h postgres -p 5432 -U symfony; do
+            echo "PostgreSQL is unavailable - sleeping"
+            sleep 1
+          done
+          echo "PostgreSQL is up - executing commands"
+          php bin/console doctrine:database:create --env=test --if-not-exists
+          php bin/console doctrine:migrations:migrate --no-interaction --env=test
+        env:
+          APP_ENV: test
+          DATABASE_URL: "pgsql://symfony:password@postgres:5432/test_db"
+          PGPASSWORD: password
+
+      - name: Run PHPUnit tests
+        run: ./vendor/bin/phpunit
+        env:
+          APP_ENV: test
+          DATABASE_URL: "pgsql://symfony:password@postgres:5432/test_db"
+
+      # --- Optional Code Quality Checks (Highly Recommended) ---
+
+      # - name: Run PHPStan (Static Analysis)
+      #   run: ./vendor/bin/phpstan analyse src --level 8 # Adjust path and level as needed
+      #   continue-on-error: true # Set to false if you want it to fail the build
+
+      # - name: Run EasyCodingStandard (ECS) / PHP-CS-Fixer
+      #   run: ./vendor/bin/ecs check src --fix --dry-run # --dry-run is important for CI
+      #   continue-on-error: true
