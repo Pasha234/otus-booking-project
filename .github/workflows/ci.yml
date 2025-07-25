@@ -90,14 +90,6 @@ jobs:
       - name: Create Test Database (PostgreSQL)
         working-directory: backend
         run: |
-          # Используем цикл с pg_isready для надежного ожидания готовности PostgreSQL
-          # вместо ненадежного sleep.
-          echo "Waiting for PostgreSQL to be ready..."
-          until pg_isready -h postgres -p 5432 -U symfony; do
-            echo "PostgreSQL is unavailable - sleeping"
-            sleep 1
-          done
-          echo "PostgreSQL is up - executing commands"
           php bin/console doctrine:database:create --env=test --if-not-exists
           php bin/console doctrine:migrations:migrate --no-interaction --env=test
         env:
