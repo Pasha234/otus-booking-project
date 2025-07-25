@@ -44,22 +44,40 @@ jobs:
           coverage: none
 
       - name: Validate Composer files
+        working-directory: backend
         run: composer validate --strict
 
       - name: Get Composer Cache Directory
         id: composer-cache
+        working-directory: backend
         run: echo "dir=$(composer config cache-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache Composer dependencies
         uses: actions/cache@v3
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-php-${{ matrix.php-version }}-composer-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php-${{ matrix.php-version }}-composer-${{ hashFiles('backend/composer.lock') }}-${{ hashFiles('backend/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-php-${{ matrix.php-version }}-composer-
 
       - name: Install Composer dependencies
+        working-directory: backend
         run: composer install --no-interaction --no-progress --prefer-dist --optimize-autoloader
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install NPM dependencies
+        working-directory: backend
+        run: npm install
+
+      - name: Build assets
+        working-directory: backend
+        run: npm run build
 
       # - name: Prepare Symfony environment for tests
       #   run: |
@@ -70,6 +88,7 @@ jobs:
       #     DATABASE_URL: "pgsql://symfony:password@postgres:5432/test_db"
 
       - name: Create Test Database (PostgreSQL)
+        working-directory: backend
         run: |
           # Используем цикл с pg_isready для надежного ожидания готовности PostgreSQL
           # вместо ненадежного sleep.
@@ -87,6 +106,7 @@ jobs:
           PGPASSWORD: password
 
       - name: Run PHPUnit tests
+        working-directory: backend
         run: ./vendor/bin/phpunit
         env:
           APP_ENV: test
@@ -95,9 +115,11 @@ jobs:
       # --- Optional Code Quality Checks (Highly Recommended) ---
 
       # - name: Run PHPStan (Static Analysis)
+      #   working-directory: backend
       #   run: ./vendor/bin/phpstan analyse src --level 8 # Adjust path and level as needed
       #   continue-on-error: true # Set to false if you want it to fail the build
 
       # - name: Run EasyCodingStandard (ECS) / PHP-CS-Fixer
+      #   working-directory: backend
       #   run: ./vendor/bin/ecs check src --fix --dry-run # --dry-run is important for CI
       #   continue-on-error: true
