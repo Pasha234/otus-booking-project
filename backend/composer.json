@@ -1,4 +1,6 @@
 {
+    "name": "pasha234/otus-booking-project",
+    "description": "Otus final project that uses Symfony with CQRS pattern",
     "type": "project",
     "license": "proprietary",
     "minimum-stability": "stable",
