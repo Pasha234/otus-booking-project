@@ -15,7 +15,7 @@
         <ini name="error_reporting" value="-1" />
         <server name="APP_ENV" value="test" force="true" />
         <server name="SHELL_VERBOSITY" value="-1" />
-        <env name="DATABASE_HOST" value="database_test" />
+        <env name="DATABASE_HOST" value="database_test" force="true" />
         <server name="DATABASE_HOST" value="database_test" force="true" />
     </php>
 

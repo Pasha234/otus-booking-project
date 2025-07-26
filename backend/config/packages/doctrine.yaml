@@ -32,9 +32,9 @@ doctrine:
 when@test:
     doctrine:
         dbal:
-            url: "postgresql://app:!ChangeMe!@database_test:5432/app?serverVersion=16&charset=utf8"
+            # В тестовом окружении мы полагаемся на DATABASE_URL, установленную в CI или .env.test.local
             # "TEST_TOKEN" is typically set by ParaTest
-            dbname_suffix: "%env(default::TEST_TOKEN)%"
+            # dbname_suffix: "%env(default::TEST_TOKEN)%"
 
 when@prod:
     doctrine:
