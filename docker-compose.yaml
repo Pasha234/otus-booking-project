@@ -68,8 +68,6 @@ services:
         build:
             context: docker/frontend
             dockerfile: frontend.dockerfile
-            args:
-                UID: ${HOST_UID:-1000}
         command: npm run watch
         working_dir: /var/www/project
         tty: true
