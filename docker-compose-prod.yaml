@@ -27,8 +27,6 @@ services:
         depends_on:
             database:
                 condition: service_healthy
-            database_test:
-                condition: service_healthy
 
     database:
         image: postgres:${POSTGRES_VERSION:-16}-alpine
