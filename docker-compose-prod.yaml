@@ -17,6 +17,8 @@ services:
         build:
             context: ./docker/fpm
             dockerfile: Dockerfile
+            args:
+                UID: ${UID:-1000}
         working_dir: /data/mysite.local
         image: balance/php
         env_file: backend/.env

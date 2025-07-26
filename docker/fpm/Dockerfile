@@ -30,8 +30,10 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /data
 
-RUN groupadd dev -g 1000
-RUN useradd dev -g dev -d /home/dev -m
+ARG UID=1000
+
+RUN groupadd dev -g ${UID} 
+RUN useradd -u ${UID} -g dev -d /home/dev -m
 RUN echo '%dev ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 USER dev:dev
 
