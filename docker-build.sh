@@ -2,6 +2,8 @@
 
 set -e
 
+export UID=$(id -u)
+
 # Set variables from docker.env
 set -a && source backend/.env && set +a
 
