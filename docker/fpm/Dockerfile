@@ -32,8 +32,8 @@ WORKDIR /data
 
 ARG UID=1000
 
-RUN groupadd dev -g ${UID} 
-RUN useradd -u ${UID} -g dev -d /home/dev -m
+RUN groupadd -g ${UID} dev
+RUN useradd -u ${UID} -g dev -d /home/dev -m dev
 RUN echo '%dev ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 USER dev:dev
 
