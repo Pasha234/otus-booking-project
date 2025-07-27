@@ -20,7 +20,9 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use App\Booking\Application\Command\InviteUserToGroup\InviteUserToGroupCommand;
 use App\Booking\Application\DTO\FindGroupById\Response as FindGroupByIdResponse;
 use App\Booking\Application\Command\CreateBookingGroup\CreateBookingGroupCommand;
+use App\Booking\Application\Command\RemoveUserFromGroup\RemoveUserFromGroupCommand;
 use App\Booking\Application\Query\SearchUsersForInvitations\SearchUsersForInvitationsQuery;
+use App\Booking\Infrastructure\Request\RemoveUserFromGroupRequest;
 
 #[Route('/booking-group')]
 class BookingGroupController extends BaseController
@@ -143,6 +145,38 @@ class BookingGroupController extends BaseController
             $this->commandBus->execute($command);
 
             return $this->json(['message' => 'Invitation sent successfully.']);
+        });
+    }
+
+    #[Route('/{id}/remove_user', name: 'app_booking_group_remove_user', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function removeUser(Request $request, string $id, #[CurrentUser] ?User $user): Response
+    {
+        return $this->handleApiRequest(function() use ($request, $id, $user){
+            $groupQuery = new FindGroupByIdQuery($id);
+            /** @var FindGroupByIdResponse|null $group */
+            $group = $this->queryBus->execute($groupQuery);
+
+            if (!$group) {
+                return $this->json(['error' => 'Group not found'], Response::HTTP_NOT_FOUND);
+            }
+
+            if ($group->owner->id !== $user->getId()) {
+                return $this->json(['error' => 'Access Denied'], Response::HTTP_FORBIDDEN);
+            }
+            
+            $requestPayload = $this->getRequestPayload($request, RemoveUserFromGroupRequest::class);
+            $this->validateRequest($requestPayload);
+
+            $command = new RemoveUserFromGroupCommand(
+                $requestPayload->user_id,
+                $group->id,
+                $user->getId(),
+            );
+
+            $this->commandBus->execute($command);
+
+            return $this->json(['message' => 'Participant was deleted successfully.']);
         });
     }
 

@@ -5,6 +5,7 @@ namespace App\Tests\Integration\Booking\Controller;
 use App\User\Domain\Entity\User;
 use App\Booking\Domain\Entity\Group;
 use Doctrine\Common\DataFixtures\Loader;
+use Symfony\Component\HttpFoundation\Response;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
@@ -201,6 +202,106 @@ class BookingGroupControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(404);
         $responseContent = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertStringContainsString('User to invite not found', $responseContent['error']);
+    }
+
+    public function test_owner_can_remove_user_from_group(): void
+    {
+        // Arrange
+        /** @var User $owner */
+        $owner = $this->executor->getReferenceRepository()->getReference('user', User::class);
+        $this->client->loginUser($owner);
+
+        /** @var User $memberToRemove */
+        $memberToRemove = $this->executor->getReferenceRepository()->getReference('second_user', User::class);
+
+        /** @var Group $bookingGroup */
+        $bookingGroup = $this->executor->getReferenceRepository()->getReference('group', Group::class);
+
+        // Ensure the user to be removed is actually a member first
+        $bookingGroup->addUserAsParticipant($memberToRemove);
+        $this->entityManager->persist($bookingGroup);
+        $this->entityManager->flush();
+
+        // Act
+        $this->client->request(
+            'POST',
+            '/booking-group/' . $bookingGroup->getId() . '/remove_user',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['user_id' => $memberToRemove->getId()])
+        );
+
+        // Assert
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonStringEqualsJsonString(
+            '{"message":"Participant was deleted successfully."}',
+            $this->client->getResponse()->getContent()
+        );
+
+        // Assert database state
+        $this->entityManager->clear();
+        /** @var Group $updatedGroup */
+        $updatedGroup = $this->entityManager->find(Group::class, $bookingGroup->getId());
+        $this->assertNotNull($updatedGroup);
+        $this->assertCount(1, $updatedGroup->getGroupParticipants()); // Should only be the owner left
+    }
+
+    public function test_non_owner_cannot_remove_user_from_group(): void
+    {
+        // Arrange
+        /** @var User $member */
+        $member = $this->executor->getReferenceRepository()->getReference('second_user', User::class);
+
+        /** @var Group $bookingGroup */
+        $bookingGroup = $this->executor->getReferenceRepository()->getReference('group', Group::class);
+
+        // Add the second user as a member
+        $bookingGroup->addUserAsParticipant($member);
+        $this->entityManager->persist($bookingGroup);
+        $this->entityManager->flush();
+
+        // Login as the non-owner member
+        $this->client->loginUser($member);
+
+        // Act: Try to remove the owner
+        $this->client->request(
+            'POST',
+            '/booking-group/' . $bookingGroup->getId() . '/remove_user',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['user_id' => $bookingGroup->getOwner()->getId()])
+        );
+
+        // Assert
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+    }
+
+    public function test_remove_user_returns_validation_error_if_user_id_is_missing(): void
+    {
+        // Arrange
+        /** @var User $owner */
+        $owner = $this->executor->getReferenceRepository()->getReference('user', User::class);
+        $this->client->loginUser($owner);
+
+        /** @var Group $bookingGroup */
+        $bookingGroup = $this->executor->getReferenceRepository()->getReference('group', Group::class);
+
+        // Act
+        $this->client->request(
+            'POST',
+            '/booking-group/' . $bookingGroup->getId() . '/remove_user',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([]) // Empty payload
+        );
+
+        // Assert
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        $responseContent = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertStringContainsString('This value should not be blank.', $responseContent['form_errors']['user_id']);
     }
 
     protected function tearDown(): void

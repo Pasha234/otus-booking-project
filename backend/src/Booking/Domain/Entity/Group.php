@@ -308,4 +308,15 @@ class Group
             fn($key, $participant) => $participant->getUser() === $user
         );
     }
+
+    public function addUserAsParticipant(User $user): static
+    {
+        $participant = new GroupParticipant();
+        $participant->setUser($user);
+        $participant->setJoinedAt(new \DateTimeImmutable());
+
+        $this->addGroupParticipant($participant);
+
+        return $this;
+    }
 }

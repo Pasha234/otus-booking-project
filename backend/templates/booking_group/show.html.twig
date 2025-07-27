@@ -16,15 +16,26 @@
             </div>
 
             <div class="col-span-1">
-                <div class="bg-gray-100 p-4 rounded-lg">
+                <div class="bg-gray-100 p-4 rounded-lg"
+                     data-controller="remove-member"
+                     data-remove-member-group-id-value="{{ booking_group.id }}">
                     {% set members = booking_group.members %}
-                    <h3 class="text-xl font-semibold mb-2">Members ({{ members|length }})</h3>
+                    <h3 class="text-xl font-semibold mb-2" data-remove-member-target="count">Members ({{ members|length }})</h3>
                     <ul class="list-none pl-0">
                         {% for participant in members %}
                             <li class="mb-1 flex justify-between items-center">
                                 <span>{{ participant.name }}</span>
                                 {% if participant.user_id == booking_group.owner.id %}
                                     <span class="text-xs bg-blue-200 text-blue-800 font-semibold px-2 py-1 rounded-full">Owner</span>
+                                {% elseif app.user and app.user.id == booking_group.owner.id %}
+                                    <button type="button"
+                                            class="w-6 h-6 flex items-center justify-center bg-red-100 text-red-600 rounded-full hover:bg-red-200 hover:text-red-800 transition-colors cursor-pointer"
+                                            title="Remove member"
+                                            data-action="click->remove-member#remove"
+                                            data-remove-member-participant-id-param="{{ participant.user_id }}"
+                                            data-confirm="Are you sure you want to remove this member?">
+                                        &times;
+                                    </button>
                                 {% endif %}
                             </li>
                         {% else %}

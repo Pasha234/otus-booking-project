@@ -3,10 +3,11 @@
 namespace App\Booking\Domain\Repository;
 
 use App\Booking\Domain\Entity\GroupParticipant;
+use App\Shared\Domain\Repository\WriteRepositoryInterface;
 
-interface GroupParticipantRepositoryInterface
+/**
+ * @extends WriteRepositoryInterface<GroupParticipant>
+ */
+interface GroupParticipantRepositoryInterface extends WriteRepositoryInterface
 {
-    public function save(GroupParticipant $group_participant): void;
-
-    public function findById(string $id): GroupParticipant;
 }

@@ -4,40 +4,21 @@ namespace App\Booking\Infrastructure\Repository;
 
 use Doctrine\Persistence\ManagerRegistry;
 use App\Booking\Domain\Entity\GroupParticipant;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use App\Shared\Infrastructure\Repository\BaseRepository;
+use App\Booking\Domain\Repository\GroupParticipantRepositoryInterface;
 
 /**
- * @extends ServiceEntityRepository<GroupParticipant>
+ * @extends BaseRepository<GroupParticipant>
  */
-class GroupParticipantRepository extends ServiceEntityRepository
+class GroupParticipantRepository extends BaseRepository implements GroupParticipantRepositoryInterface
 {
-    public function __construct(ManagerRegistry $registry)
+    public function getEntityClass(): string
     {
-        parent::__construct($registry, GroupParticipant::class);
+        return GroupParticipant::class;
     }
 
-    //    /**
-    //     * @return GroupParticipant[] Returns an array of GroupParticipant objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('g')
-    //            ->andWhere('g.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('g.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?GroupParticipant
-    //    {
-    //        return $this->createQueryBuilder('g')
-    //            ->andWhere('g.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function __construct(ManagerRegistry $managerRegistry)
+    {
+        parent::__construct($managerRegistry);
+    }
 }
