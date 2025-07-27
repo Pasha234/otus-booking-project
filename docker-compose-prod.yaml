@@ -21,7 +21,7 @@ services:
                 UID: ${HOST_UID:-1000}
         working_dir: /data/mysite.local
         image: balance/php
-        env_file: backend/.env
+        env_file: backend/.env.prod.local
         volumes:
             - ./backend:/data/mysite.local
         networks:
@@ -57,7 +57,7 @@ services:
             - ./backend:/var/www/project
         depends_on:
             - php
-        env_file: backend/.env
+        env_file: backend/.env.prod.local
         networks:
             - app-network
 networks:
