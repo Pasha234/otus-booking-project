@@ -90,7 +90,7 @@ class UpdateBookingCommandHandler implements CommandHandlerInterface
                     $resourceIds,
                     $startAt,
                     $endAt,
-                    $booking->getId()->toRfc4122()
+                    $booking->getId()
                 );
 
                 foreach ($resourceIds as $resourceId) {
