@@ -7,7 +7,9 @@ use Symfony\Component\Uid\Uuid;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
+use Gedmo\Mapping\Annotation\Timestampable;
 use Symfony\Bridge\Doctrine\Types\UuidType;
+use App\Booking\Domain\Entity\BookedResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 use App\Booking\Infrastructure\Repository\BookingRepository;
@@ -28,19 +30,10 @@ class Booking
     private ?string $description = null;
 
     #[ORM\Column]
-    private ?\DateTime $start_time = null;
-
-    #[ORM\Column]
     private ?\DateTimeImmutable $end_at = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $start_at = null;
-
-    /**
-     * @var Collection<int, Resource>
-     */
-    #[ORM\ManyToMany(targetEntity: Resource::class, inversedBy: 'bookings')]
-    private Collection $resource;
 
     /**
      * @var Collection<int, User>
@@ -56,10 +49,24 @@ class Booking
     #[ORM\JoinColumn(nullable: false)]
     private ?Group $group = null;
 
+    /**
+     * @var Collection<int, BookedResource>
+     */
+    #[ORM\OneToMany(targetEntity: BookedResource::class, mappedBy: 'booking', orphanRemoval: true, cascade: ['persist'])]
+    private Collection $bookedResources;
+
+    #[ORM\Column(nullable: true)]
+    #[Timestampable(on: 'create')]
+    private ?\DateTimeImmutable $created_at = null;
+
+    #[ORM\Column(nullable: true)]
+    #[Timestampable(on: 'update')]
+    private ?\DateTimeImmutable $updated_at = null;
+
     public function __construct()
     {
-        $this->resource = new ArrayCollection();
         $this->users = new ArrayCollection();
+        $this->bookedResources = new ArrayCollection();
     }
 
     public function getId(): ?Uuid
@@ -91,18 +98,6 @@ class Booking
         return $this;
     }
 
-    public function getStartTime(): ?\DateTime
-    {
-        return $this->start_time;
-    }
-
-    public function setStartTime(\DateTime $start_time): static
-    {
-        $this->start_time = $start_time;
-
-        return $this;
-    }
-
     public function getEndAt(): ?\DateTimeImmutable
     {
         return $this->end_at;
@@ -123,30 +118,6 @@ class Booking
     public function setStartAt(\DateTimeImmutable $start_at): static
     {
         $this->start_at = $start_at;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Resource>
-     */
-    public function getResource(): Collection
-    {
-        return $this->resource;
-    }
-
-    public function addResource(Resource $resource): static
-    {
-        if (!$this->resource->contains($resource)) {
-            $this->resource->add($resource);
-        }
-
-        return $this;
-    }
-
-    public function removeResource(Resource $resource): static
-    {
-        $this->resource->removeElement($resource);
 
         return $this;
     }
@@ -195,6 +166,60 @@ class Booking
     public function setGroup(?Group $group): static
     {
         $this->group = $group;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, BookedResource>
+     */
+    public function getBookedResources(): Collection
+    {
+        return $this->bookedResources;
+    }
+
+    public function addBookedResource(BookedResource $bookedResource): static
+    {
+        if (!$this->bookedResources->contains($bookedResource)) {
+            $this->bookedResources->add($bookedResource);
+            $bookedResource->setBooking($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBookedResource(BookedResource $bookedResource): static
+    {
+        if ($this->bookedResources->removeElement($bookedResource)) {
+            // set the owning side to null (unless already changed)
+            if ($bookedResource->getBooking() === $this) {
+                $bookedResource->setBooking(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->created_at;
+    }
+
+    public function setCreatedAt(?\DateTimeImmutable $created_at): static
+    {
+        $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updated_at;
+    }
+
+    public function setUpdatedAt(?\DateTimeImmutable $updated_at): static
+    {
+        $this->updated_at = $updated_at;
 
         return $this;
     }

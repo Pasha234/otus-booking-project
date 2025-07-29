@@ -3,10 +3,16 @@
 namespace App\Booking\Domain\Repository;
 
 use App\Booking\Domain\Entity\Booking;
+use App\Shared\Domain\Repository\WriteRepositoryInterface;
+use DateTimeImmutable;
 
-interface BookingRepositoryInterface
+/**
+ * @extends WriteRepositoryInterface<Booking>
+ */
+interface BookingRepositoryInterface extends WriteRepositoryInterface
 {
-    public function save(Booking $booking): void;
-
-    public function findById(string $id): Booking;
+    /**
+     * @return Booking[]
+     */
+    public function getListByFilters(string $group_id, ?DateTimeImmutable $start_at = null, ?DateTimeImmutable $end_at = null): array;
 }

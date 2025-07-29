@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Repository;
 
+use App\Shared\Application\Exception\NotFoundInRepositoryException;
 use EntityInterface;
 use InvalidArgumentException;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Component\Uid\Uuid;
 
@@ -69,18 +69,18 @@ abstract class BaseRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param int $id
+     * @param string $id
      * @return void
      */
-    public function deleteById(int $id): void
+    public function deleteById(string $id): void
     {
-        $category = $this->find($id);
+        $entity = $this->find($id);
 
-        if (!$category) {
-            throw new NotFoundHttpException(sprintf("The {$this->getEntityClass()} with ID '%s' doesn't exist", $id));
+        if (!$entity) {
+            throw new NotFoundInRepositoryException(sprintf("The {$this->getEntityClass()} with ID '%s' doesn't exist", $id));
         }
 
-        $this->delete($category);
+        $this->delete($entity);
     }
 
     /**

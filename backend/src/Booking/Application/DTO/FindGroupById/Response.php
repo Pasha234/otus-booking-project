@@ -34,7 +34,7 @@ class Response
             UserDTO::fromEntity($group->getOwner()),
             array_map(function(GroupParticipant $member) {
                 return MemberDTO::fromEntity($member);
-            }, $group->getMembers()->toArray())
+            }, $group->getMembers()->toArray()),
         );
     }
 }

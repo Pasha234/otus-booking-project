@@ -4,11 +4,12 @@ namespace App\Booking\Domain\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
+use Gedmo\Mapping\Annotation\Timestampable;
 use Symfony\Bridge\Doctrine\Types\UuidType;
+use App\Booking\Domain\Entity\BookedResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 use App\Booking\Infrastructure\Repository\ResourceRepository;
-use Gedmo\Mapping\Annotation\Timestampable;
 
 #[ORM\Entity(repositoryClass: ResourceRepository::class)]
 class Resource
@@ -28,12 +29,6 @@ class Resource
     #[ORM\Column]
     private ?bool $is_active = null;
 
-    /**
-     * @var Collection<int, Booking>
-     */
-    #[ORM\ManyToMany(targetEntity: Booking::class, mappedBy: 'resource')]
-    private Collection $bookings;
-
     #[ORM\ManyToOne(inversedBy: 'resources')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Group $group = null;
@@ -46,9 +41,15 @@ class Resource
     #[Timestampable(on: 'update')]
     private ?\DateTimeImmutable $updated_at = null;
 
+    /**
+     * @var Collection<int, BookedResource>
+     */
+    #[ORM\OneToMany(targetEntity: BookedResource::class, mappedBy: 'resource', orphanRemoval: true)]
+    private Collection $bookedResources;
+
     public function __construct()
     {
-        $this->bookings = new ArrayCollection();
+        $this->bookedResources = new ArrayCollection();
     }
 
     public function getId(): ?string
@@ -92,33 +93,6 @@ class Resource
         return $this;
     }
 
-    /**
-     * @return Collection<int, Booking>
-     */
-    public function getBookings(): Collection
-    {
-        return $this->bookings;
-    }
-
-    public function addBooking(Booking $booking): static
-    {
-        if (!$this->bookings->contains($booking)) {
-            $this->bookings->add($booking);
-            $booking->addResource($this);
-        }
-
-        return $this;
-    }
-
-    public function removeBooking(Booking $booking): static
-    {
-        if ($this->bookings->removeElement($booking)) {
-            $booking->removeResource($this);
-        }
-
-        return $this;
-    }
-
     public function getGroup(): ?Group
     {
         return $this->group;
@@ -151,6 +125,36 @@ class Resource
     public function setUpdatedAt(?\DateTimeImmutable $updated_at): static
     {
         $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, BookedResource>
+     */
+    public function getBookedResources(): Collection
+    {
+        return $this->bookedResources;
+    }
+
+    public function addBookedResource(BookedResource $bookedResource): static
+    {
+        if (!$this->bookedResources->contains($bookedResource)) {
+            $this->bookedResources->add($bookedResource);
+            $bookedResource->setResource($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBookedResource(BookedResource $bookedResource): static
+    {
+        if ($this->bookedResources->removeElement($bookedResource)) {
+            // set the owning side to null (unless already changed)
+            if ($bookedResource->getResource() === $this) {
+                $bookedResource->setResource(null);
+            }
+        }
 
         return $this;
     }

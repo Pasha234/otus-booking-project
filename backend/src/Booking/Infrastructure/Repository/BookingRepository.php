@@ -4,40 +4,46 @@ namespace App\Booking\Infrastructure\Repository;
 
 use App\Booking\Domain\Entity\Booking;
 use Doctrine\Persistence\ManagerRegistry;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use App\Booking\Domain\Repository\BookingRepositoryInterface;
+use App\Shared\Infrastructure\Repository\BaseRepository;
 
 /**
- * @extends ServiceEntityRepository<Booking>
+ * @extends BaseRepository<Booking>
  */
-class BookingRepository extends ServiceEntityRepository
+class BookingRepository extends BaseRepository implements BookingRepositoryInterface
 {
-    public function __construct(ManagerRegistry $registry)
+    public function getEntityClass(): string
     {
-        parent::__construct($registry, Booking::class);
+        return Booking::class;
     }
 
-    //    /**
-    //     * @return Booking[] Returns an array of Booking objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('b')
-    //            ->andWhere('b.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('b.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function __construct(ManagerRegistry $managerRegistry)
+    {
+        parent::__construct($managerRegistry);
+    }
 
-    //    public function findOneBySomeField($value): ?Booking
-    //    {
-    //        return $this->createQueryBuilder('b')
-    //            ->andWhere('b.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    /**
+     * @return Booking[]
+     */
+    public function getListByFilters(string $group_id, \DateTimeImmutable|null $start_at = null, \DateTimeImmutable|null $end_at = null): array
+    {
+        $qb = $this->createQueryBuilder('b');
+ 
+        $qb->andWhere('b.group = :group_id')
+            ->setParameter('group_id', $group_id);
+ 
+        if ($start_at) {
+            $qb->andWhere('b.end_at > :start_at')
+                ->setParameter('start_at', $start_at);
+        }
+ 
+        if ($end_at) {
+            $qb->andWhere('b.start_at < :end_at')
+                ->setParameter('end_at', $end_at);
+        }
+ 
+        return $qb->orderBy('b.start_at', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

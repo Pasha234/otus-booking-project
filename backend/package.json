@@ -24,6 +24,7 @@
         "build": "encore production --progress"
     },
     "dependencies": {
+        "@rails/request.js": "^0.0.12",
         "@tailwindcss/postcss": "^4.1.11",
         "lodash.debounce": "^4.0.8",
         "postcss-loader": "^8.1.1"

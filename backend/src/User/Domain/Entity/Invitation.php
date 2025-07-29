@@ -5,6 +5,7 @@ namespace App\User\Domain\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use App\Booking\Domain\Entity\Group;
 use App\User\Domain\Enum\InvitationStatus;
+use Gedmo\Mapping\Annotation\Timestampable;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 use App\User\Infrastructure\Repository\InvitationRepository;
@@ -43,6 +44,14 @@ class Invitation
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $declined_at = null;
+
+    #[ORM\Column(nullable: true)]
+    #[Timestampable(on: 'create')]
+    private ?\DateTimeImmutable $created_at = null;
+
+    #[ORM\Column(nullable: true)]
+    #[Timestampable(on: 'update')]
+    private ?\DateTimeImmutable $updated_at = null;
 
     public function getId(): ?string
     {
@@ -141,6 +150,30 @@ class Invitation
     public function setDeclinedAt(?\DateTimeImmutable $declined_at): static
     {
         $this->declined_at = $declined_at;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->created_at;
+    }
+
+    public function setCreatedAt(?\DateTimeImmutable $created_at): static
+    {
+        $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updated_at;
+    }
+
+    public function setUpdatedAt(?\DateTimeImmutable $updated_at): static
+    {
+        $this->updated_at = $updated_at;
 
         return $this;
     }

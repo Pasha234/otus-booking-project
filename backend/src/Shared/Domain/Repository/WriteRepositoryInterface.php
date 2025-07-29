@@ -27,10 +27,10 @@ interface WriteRepositoryInterface
     public function getById(string $id): ?object;
 
     /**
-     * @param int $id
+     * @param string $id
      * @return void
      */
-    public function deleteById(int $id): void;
+    public function deleteById(string $id): void;
 
     /**
      * @param T $entity

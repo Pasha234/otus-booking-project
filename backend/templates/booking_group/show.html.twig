@@ -10,9 +10,24 @@
 
         <div class="grid grid-cols-3 gap-4">
             <div class="col-span-2">
-                <h2 class="text-2xl font-semibold mb-4">Bookings</h2>
-                <!-- Booking list will go here -->
-                <p>List of bookings will be implemented here.</p>
+                <div data-controller="booking-list" data-booking-list-group-id-value="{{ booking_group.id }}">
+                    <h2 class="text-2xl font-semibold mb-4">Bookings</h2>
+
+                    <div class="flex space-x-4 mb-4">
+                        <div>
+                            <label for="start_at" class="block text-sm font-medium text-gray-700">From</label>
+                            <input type="date" id="start_at" data-booking-list-target="startAt" data-action="change->booking-list#loadBookings" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="end_at" class="block text-sm font-medium text-gray-700">To</label>
+                            <input type="date" id="end_at" data-booking-list-target="endAt" data-action="change->booking-list#loadBookings" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        </div>
+                    </div>
+
+                    <div data-booking-list-target="results" class="mt-6">
+                        <!-- Bookings will be loaded here -->
+                    </div>
+                </div>
             </div>
 
             <div class="col-span-1">
@@ -41,6 +56,18 @@
                         {% else %}
                             <li>This group has no members.</li>
                         {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="bg-gray-100 p-4 rounded-lg mt-4">
+                    <h3 class="text-xl font-semibold mb-2">Actions</h3>
+                    <ul class="list-none pl-0">
+                        <li class="mb-2">
+                            <a href="{{ path('app_booking_create', {'group_id': booking_group.id}) }}"
+                                class="text-blue-500 hover:text-blue-700">
+                                Create Booking
+                            </a>
+                        </li>
                     </ul>
                 </div>
 
