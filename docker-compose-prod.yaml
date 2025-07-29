@@ -66,6 +66,7 @@ services:
         command: redis-server /usr/local/etc/redis/redis.conf
         volumes:
             - cache:/data
+            - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
         networks:
             - app-network
         healthcheck:
