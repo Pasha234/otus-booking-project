@@ -14,7 +14,7 @@ use DateTimeImmutable;
 class GetBookingListQueryHandler implements QueryHandlerInterface
 {
     public function __construct(
-        private BookingRepositoryInterface $bookingRepository,
+        private BookingReadRepositoryInterface $bookingRepository,
         private UserRepositoryInterface $userRepository,
     )
     {
