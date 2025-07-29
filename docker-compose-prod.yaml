@@ -60,8 +60,25 @@ services:
         env_file: backend/.env.prod.local
         networks:
             - app-network
+
+    redis:
+        image: redis:7.2-rc2-bookworm
+        ports:
+            - '6379:6379'
+        command: redis-server /usr/local/etc/redis/redis.conf
+        volumes:
+            - cache:/data
+        networks:
+            - app-network
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 1s
+            timeout: 3s
+            retries: 30
 networks:
     app-network:
 
 volumes:
-  database_data:
+    database_data:
+    cache:
+        driver: local

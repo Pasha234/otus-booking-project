@@ -80,8 +80,38 @@ services:
         env_file: backend/.env
         networks:
             - app-network
+    
+    redis:
+        image: redis:7.2-rc2-bookworm
+        ports:
+            - '6379:6379'
+        command: redis-server /usr/local/etc/redis/redis.conf
+        volumes:
+            - cache:/data
+            - ./redis:/home
+            - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+        networks:
+            - app-network
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 1s
+            timeout: 3s
+            retries: 30
+
+    redis-insight:
+        image: redis/redisinsight:latest
+        restart: always
+        ports:
+            - "5540:5540"
+        volumes:
+            - redis-insight:/data
+        networks:
+            - app-network
 networks:
     app-network:
 
 volumes:
-  database_data:
+    database_data:
+    redis-insight:
+    cache:
+        driver: local

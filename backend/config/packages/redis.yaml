@@ -1,0 +1,9 @@
+services:
+  # Define the Redis service so Symfony's container knows how to create it.
+  Redis:
+    class: Redis
+    calls:
+      - method: connect
+        arguments:
+          - "%env(resolve:REDIS_HOST)%"
+          - "%env(int:REDIS_PORT)%"

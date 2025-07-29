@@ -4,6 +4,7 @@ namespace App\Booking\Application\Query\GetBookingList;
 
 use App\Booking\Application\DTO\GetBookingList\BookingDTO;
 use App\Booking\Domain\Entity\Booking;
+use App\Booking\Domain\Repository\BookingReadRepositoryInterface;
 use App\Booking\Domain\Repository\BookingRepositoryInterface;
 use App\Shared\Application\Exception\NotFoundInRepositoryException;
 use App\Shared\Application\Query\QueryHandlerInterface;

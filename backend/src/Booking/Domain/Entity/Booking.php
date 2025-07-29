@@ -21,7 +21,7 @@ class Booking
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\Column(type: UuidType::NAME, unique: true)]
     #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
-    private ?Uuid $id = null;
+    private ?string $id = null;
 
     #[ORM\Column(length: 255)]
     private ?string $title = null;
@@ -69,7 +69,7 @@ class Booking
         $this->bookedResources = new ArrayCollection();
     }
 
-    public function getId(): ?Uuid
+    public function getId(): ?string
     {
         return $this->id;
     }
